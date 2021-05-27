@@ -17,7 +17,8 @@ To visualize the throat data (like diameters or molar flow rates) we need to set
 
 Throat data plotted with tubes radius proportional to throat diameter and tubes color linked to the throat mole rate:
 
-    '''
+
+'''
 
 import scipy as sp
 import openpnm as op
@@ -44,7 +45,7 @@ f1=np.savetxt("pore_diameter",(pn['pore.diameter']))
 #f1=np.savetxt("pore_diamter",(pn['pore.diameter'][pn.pores('all')]))
 
 print(pn['throat.conns'][pn.pores('all')])
-f2=np.savetxt("link.dat",(pn['throat.conns']))
+f2=np.savetxt("link.dat",(pn['throat.conns']).astype(int),fmt='%i')
 #f2=np.savetxt("link.dat",(pn['throat.conns'][pn.pores('all')]))
 
 print(pn['throat.diameter'][pn.pores('all')])
@@ -73,16 +74,14 @@ geo.add_model(propname='pore.diameter',
 
 geo.add_model(propname='pore.volume',
               model=op.models.geometry.pore_volume.sphere)
-
 geo.add_model(propname='throat.diameter',
               model=op.models.geometry.throat_size.from_neighbor_pores,
               mode='min')
-
 geo.add_model(propname='throat.length',
               model=op.models.geometry.throat_length.classic)
-
 geo.add_model(propname='throat.volume',
               model=op.models.geometry.throat_volume.cylinder)
+
 
 geo.show_hist(['pore.diameter', 'throat.diameter', 'throat.length'])
 #plt.hist(pn['pore_coords'])
