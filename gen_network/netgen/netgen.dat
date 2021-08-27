@@ -1,0 +1,11 @@
+../../../Data/cubic_10          % Base file 
+10      10       10               % Lattice size
+1.0   10.0       0.2   3.0     % Min throat radius, max throat radius, delta exp, eta exp
+1.0   20.0       0.3   2.0     % Min throat length, max throat length, delta exp, eta exp
+1.0   3.0       0.2   3.0     % Min aspect ratio, max aspect ratio, delta exp, eta exp
+0.01   0.048  0.8   1.6        % Triangles: Min G, max G, delta exp, eta exp
+0.1  0.05                       % Pores: proportion of square and circular pores
+0.1  0.05                       % Throats: proportion of square and circular throats
+0.1                            % Proportion of pore volume occupied by clay
+4.0                            % Average connection number <= 6
+F                              % Periodic boundary condition
