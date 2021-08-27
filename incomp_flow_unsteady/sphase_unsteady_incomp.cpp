@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
       infile >> mu ;       // viscosity (Pa. s)
       infile >> dt ;       // time step 
       infile >> nsteps;    // number of time steps
-      infile >> tempe;     // temperature in K  
+      infile >> tempe;     // temperature in K 
       infile >> uniform;  // uniform 
       infile >> linkd;    // link diameter 
       infile >> ll;       // link length
@@ -335,6 +335,9 @@ int main(int argc, char *argv[])
       porosity =  porosity/(1000*1000*1000);
       cout << "porosity" << porosity << endl;
 
+      ofstream outavgpfile ("z_avg_pressure_out.txt");
+      double zpresavg[nodes/nsec];
+      int indx;
       /*******************************************************************************/
       // loop through time steps 
       for(int k=1; k<nsteps; k++) {
@@ -499,6 +502,21 @@ int main(int argc, char *argv[])
 	     //cout << "avg flow rate  "<< flow <<" "<< flow*mu*length/area/(pinlet-poutlet) << std::endl;
 	     outmass   << k <<"\t"<< k*dt <<"\t" << massin*1e-21 <<"\t"<< -massout*1e-21 <<"\t" << std::endl;
 
+	     // calculate average pressure
+	     outavgpfile <<"#set dataset " << k << endl;   
+	     //outavgpfile <<"set dataset " << k << endl;   
+	     outavgpfile <<"  "<< endl;   
+
+             for(int i=0; i<nodes/nsec; i++) {
+       		     zpresavg[i] = 0.0;
+		     for(int j=0; j<nsec; j++) {
+       			     indx = i*nsec+j;
+       			     zpresavg[i] = zpresavg[i]+ pressures[indx]; 
+		     }
+		     outavgpfile << zc[i*nsec+1]<<" "<< zpresavg[i]/float(nsec) << std::endl;
+	     }
+             outavgpfile <<" " << endl;  
+
       } // time step loop 
       
      
@@ -512,18 +530,6 @@ int main(int argc, char *argv[])
 
       cout << "print vtp files: completed" << endl; 
 
-      ofstream outavgpfile ("z_avg_pressure_out.txt");
-      // calculate average pressure 
-      double zpresavg[nodes/nsec];
-      int indx;
-      for(int i=0; i<nodes/nsec; i++) {
-              zpresavg[i] = 0.0;
-              for(int j=0; j<nsec; j++) {
-                      indx = i*nsec+j;
-                      zpresavg[i] = zpresavg[i]+ pressures[indx];
-              }
-              outavgpfile << zc[i*nsec+1]<<" "<< zpresavg[i]/float(nsec) << std::endl;
-      }
       outavgpfile.close();
 
       system("gnuplot plot_mass.gnu");

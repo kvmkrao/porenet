@@ -63,6 +63,7 @@ void readlink(int* l1, int* l2, double* ld) {
 	for(int i=0; i<nl ; i++) {
 	     linknn >> l1[i] >> l2[i]; 
              linkdia >> ld[i];
+	     //ld[i] = 100.0;  //1e-7;  // link diameter 
 	}
 	
 	linknn.close();
@@ -142,16 +143,16 @@ int main(int argc, char *argv[])
       infile >> mu ;       // viscosity (Pa. s)
       infile >> dt ;       // time step 
       infile >> nsteps;    // number of time steps
-      infile >> tempe;     // temperature in K  
+      infile >> tempe;     // temperature in K 
       infile >> uniform;  // uniform 
       infile >> linkd;    // link diameter 
       infile >> ll;       // link length
-      infile >> nx; 
-      infile >> ny; 
-      infile >> nz; 
-      infile >> zleft;
-      infile >> zright;
+      infile >> nx;
+      infile >> ny;
+      infile >> nz;
 
+      infile >> zleft; 
+      infile >> zright; 
       infile.close();      //close the file object.
       double pmin = poutlet, pmax = pinlet;  //MPa 
       ifstream rnode("node.dat");
@@ -293,32 +294,24 @@ int main(int argc, char *argv[])
       // https://doi.org/10.1017/S0022112010000704
       // calculate inscribed radius of pore throat 
 
-      // set the link diamter to 20nm 
-      if(uniform ==1) {  
-	      for(int j=0; j<links; j++) { 
-		      ld[j] = linkd;  
-	      }
-      }
-      else 
-      {
-	      for(int j=0; j<links; j++) {
+      for(int j=0; j<links; j++) {
               k1     = l1[j];
-              k2     = l2[j];
-              rid    = nd[k1]/maxd;
-              rjd    = nd[k2]/maxd;
+	      k2     = l2[j];
+	      rid    = nd[k1]/maxd;
+	      rjd    = nd[k2]/maxd;
               qid    = rid*sin(PI/4.0)/pow((1.0-rid*cos(PI/4.0)),0.2);
               qjd    = rjd*sin(PI/4.0)/pow((1.0-rjd*cos(PI/4.0)),0.2); 
               ld[j] = maxd*qid*qjd*pow((pow(qid,1.0/0.2)+pow(qjd,1.0/0.2)),-0.2);
-      	      }
+      }
 
-	      for(int j=0; j<links; j++) {
-              k1 = l1[j]; 
-              k2 = l2[j]; 
-              if(ld[j] > nd[k1]) 
-                      ld[j] = nd[k1]/3.0; 
+
+      for(int j=0; j<links; j++) {
+	      k1 = l1[j]; 
+	      k2 = l2[j]; 
+	      if(ld[j] > nd[k1]) 
+		      ld[j] = nd[k1]/3.0; 
               else if (ld[j] > nd[k2]) 
-                      ld[j] = nd[k2]/3.0; 
-	      }
+		      ld[j] = nd[k2]/3.0; 
       }
 
       // calculate initial density 
@@ -390,7 +383,7 @@ int main(int argc, char *argv[])
 				     k1  = l1[id];     // node at one end of the link 
 				     k2  = l2[id];     // node on the other end of the link 
 				     {
-					     linkl = ll; //- nreff[k1] - nreff[k2]; // link length 	
+					     linkl = ll- nreff[k1] - nreff[k2]; // link length 	
 					     pavg  = (pressures[k1] + pressures[k2])/2.0;  
 					     //effr  = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 					     //only pore throats offer resistence to flow but they do not have volume 
@@ -474,7 +467,7 @@ int main(int argc, char *argv[])
 			     id     = conn[i][j];
 			     k1     = l1[id];
 			     k2     = l2[id];
-			     linkl  = ll ; //- nreff[k1] - nreff[k2]; 
+			     linkl  = ll - nreff[k1] - nreff[k2]; 
 			     pavg   = (pressures[k1] + pressures[k2])/2.0;  
 			     //effr = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 			     effr   = 0.0; //0.4*0.1*pavg/(1.0+0.1*pavg); // pressure in MPa
@@ -493,7 +486,7 @@ int main(int argc, char *argv[])
 				     id    = conn[i][j];
 				     k1    = l1[id];
 				     k2    = l2[id];
-				     linkl = ll; //- nreff[k1] - nreff[k2]; 
+				     linkl = ll- nreff[k1] - nreff[k2]; 
 				     pavg  = (pressures[k1] + pressures[k2])/2.0;  
 				     //effr  = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 				     effr  = 0.0; //0.4*0.1*pavg/(1.0+0.1*pavg); // pressure in MPa
@@ -522,6 +515,7 @@ int main(int argc, char *argv[])
 		     outavgpfile << zc[i*nsec+1]<<" "<< zpresavg[i]/float(nsec) << std::endl;
 	     }
              outavgpfile <<" " << endl;  
+
       } // time step loop 
       
      
@@ -537,7 +531,7 @@ int main(int argc, char *argv[])
 
       outavgpfile.close();
 
-      //system("gnuplot plot_mass.gnu");
+      system("gnuplot plot_mass.gnu");
       //system("gnuplot -p -e plot_mass.gnu");
       free(xc);
       free(yc);
