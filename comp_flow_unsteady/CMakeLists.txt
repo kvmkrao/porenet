@@ -6,10 +6,6 @@
 
 # my cmake file for teton-project
 cmake_minimum_required(VERSION 3.0) 
-#SET(CMAKE_SYSTEM_NAME Generic)
-# =====================================================================
-# Cache variables
-# =====================================================================
 
 # set paths
 SET(PETSC_DIR /home/vkotteda/Software/libraries/petsc-gcc7)
@@ -17,7 +13,6 @@ SET(PETSC_ARCH linux-gnu-release-cuda)
 SET(BOOST_DIR /home/vkotteda/Software/libraries/boost/gcc7/install/)
 SET(METIS_DIR /home/vkotteda/Software/libraries/parmetis/install/) 
 SET(MPI_DIR /home/vkotteda/Software/libraries/mpi/gcc7/aware-c/) 
-#SET(AMGX_DIR /home/exx/Downloads/AMGX-main)
 
 
 # set default c++ compilers
@@ -28,7 +23,6 @@ SET(CMAKE_C_COMPILER ${MPI_DIR}/bin/mpicc)
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-SET(CMAKE_CXX_FLAGS -DUSE_DOUBLES=1)
 
 # =====================================================================
 # Project settings
@@ -54,22 +48,17 @@ SET(SRC ${CMAKE_SOURCE_DIR})
 
 #set list of files to compile 
 set(SOURCE_EXE
-	sphase_unstead12.cpp 
+	sphase_unsteady_comp.cpp
+        write_vtk.cpp	
 	linear_solver_petsc.cpp)
 
-#	single_phase3d_openpnm_network.cpp 
 #include header files 
 include_directories(".")
-#INCLUDE(GNUInstallDirs)
 include_directories(${PETSC_DIR}/include
 	${PETSC_DIR}/${PETSC_ARCH}/include
 	${BOOST_DIR}/include
         /usr/local/include
-        src/
-        src/operations/
-        src/pore_network/
-        src/misc/
-        src/simulation/)
+        )
 
 #For the static library:
 set(PROJECT_LINK_LIBS libmetis.a)
@@ -83,14 +72,6 @@ LINK_DIRECTORIES(${PETSC_DIR}/${PETSC_ARCH}/lib/)
 
 set(PROJECT_LINK_LIBS libmpi.so)
 LINK_DIRECTORIES(${MPI_DIR}/lib/) 
-
-#set(PROJECT_LINK_LIBS libamgx.a     libamgxsh.so)
-#LINK_DIRECTORIES(/home/vkotteda/Software/libraries/Nvidia-AmgX/lib/) 
-
-#added for Amgx 
-#LINK_DIRECTORIES(
-#    ${CUDA_LIBRARY_DIRS}
-#    ${AMGX_LIBRARY_DIRS})
 
 ADD_EXECUTABLE(sinphase ${SOURCE_EXE})
 
