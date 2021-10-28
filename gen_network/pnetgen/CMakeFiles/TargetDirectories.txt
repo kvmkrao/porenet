@@ -1,0 +1,3 @@
+/home/vkotteda/utility/netgen/pnetgen/CMakeFiles/rebuild_cache.dir
+/home/vkotteda/utility/netgen/pnetgen/CMakeFiles/edit_cache.dir
+/home/vkotteda/utility/netgen/pnetgen/CMakeFiles/pnetgen.dir

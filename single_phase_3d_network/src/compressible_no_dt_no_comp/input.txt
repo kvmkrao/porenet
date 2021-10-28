@@ -1,0 +1,24 @@
+10.0
+1.0
+1.5e-5
+5e-9
+100
+373
+1
+10
+100
+10 
+10 
+10  
+120.0
+960.0
+
+pinlet ;   // in MPa 
+poutlet ;  // in MPa 
+mu ;       // viscosity (Pa. s)
+dt ;       // time step 
+nsteps;    // number of time steps
+tempe;     // temperature in K  
+zleft;
+zright;
+
