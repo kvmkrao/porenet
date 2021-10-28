@@ -1,0 +1,23 @@
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef LINEAR_SOLVER_PETSC_H
+#define LINEAR_SOLVER_PETSC_H
+
+#include <vector>
+
+int linear_solver_petsc(const std::vector<double> &val,
+                        const std::vector<double> &rhs,
+                        std::vector<double> &pressures,
+                        const std::vector<int> &row,
+                        const std::vector<int> &col,
+			int* dia_nnz_pet, 
+                        int elementCount,
+			int maxd_nz,
+                        int maxIters,
+                        double &resid,
+                        int &iters);
+
+
+#endif // LINEAR_SOLVER_PETSC_H
