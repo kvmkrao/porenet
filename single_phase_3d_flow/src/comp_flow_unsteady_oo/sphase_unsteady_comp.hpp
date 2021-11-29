@@ -19,7 +19,6 @@ class Node
                 void readdata(); 
                 void DisplayVectorContents(); 
 
-        //private:
                 std::vector<double> rad;
                 std::vector<double> xc;
                 std::vector<double> yc;
@@ -40,7 +39,6 @@ class Link
 
                 void DisplayVectorContents(); 
 
-        //private:
                 std::vector<pair<int,int>> ends;
                 std::vector<double> rad;
          private:
