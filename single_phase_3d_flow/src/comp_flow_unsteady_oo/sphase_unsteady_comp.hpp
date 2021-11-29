@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <vector>
-#include <iomanip>      // std::setiosflags
-#include <stdlib.h>     /* srand, rand */
+#include <iomanip>      
+#include <stdlib.h>     
 
 using namespace std;
 
