@@ -6,8 +6,8 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <vector>
-#include <iomanip>      // std::setiosflags
-#include <stdlib.h>     /* srand, rand */
+#include <iomanip>      
+#include <stdlib.h>     
 
 #include "sphase_unsteady_comp.hpp"
 
@@ -116,26 +116,12 @@ void printLinksVTK(int nodes, int links, std::vector<double> &pressures)
     }
     output << endl;
     output << "             </DataArray>" << endl;
-/*
-    output << "             <DataArray type=\"Float32\" Name=\"test\" format=\"ascii\">" << endl;
 
-    cout << " write information 2 \n" << endl;
-
-    for(int k=0; links; ++k)
-    {
-        output << rand() << "\t";
-    }
-
-    cout << " write information 2 \n" << endl;
-    output << endl;
-    output << "             </DataArray>" << endl;
-
-*/
     output << "         </CellData>" << endl;
     output << "     </Piece>" << endl;
     output << " </PolyData>" << endl;
     output << "</VTKFile>" << endl;
-//    exit(0);  
+
     cout << " complete \n" << endl; 
     output << endl;   
     output.close();
