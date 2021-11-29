@@ -21,8 +21,8 @@
 #include <sys/stat.h>
 #include <sstream>
 #include <vector>
-#include <iomanip>      // std::setiosflags
-#include <stdlib.h>     /* srand, rand */
+#include <iomanip>      
+#include <stdlib.h>    
 
 // petsc header files 
 #include <petscksp.h>
@@ -101,45 +101,10 @@ void Link::DisplayVectorContents()
         std::cout << std::endl;
 }
 
-/*
-void readnode(double* xn, double* yn, double* zn, double* dia) {
-	int nn;
-	ifstream nodeloc("node.dat");
-	nodeloc >> nn;
-	
-	ifstream nodedia("node_dia.dat");
-	for(int i=0; i<nn ; i++) {
-	     nodeloc >> xn[i] >> yn[i]>> zn[i];	
-	     nodedia >> dia[i]; // in  nm 
-	}
-	
-	nodeloc.close();
-	nodedia.close(); 
-	return;
-}
-
-void readlink(int* l1, int* l2, double* ld) {
-	int nl;
-	ifstream linknn("link.dat");
-	linknn >> nl;
-	
-	ifstream linkdia("link_dia.dat");
-	linkdia >> nl;
-	for(int i=0; i<nl ; i++) {
-	     linknn >> l1[i] >> l2[i]; 
-             linkdia >> ld[i];
-	     //ld[i] = 100.0;  //1e-7;  // link diameter 
-	}
-	
-	linknn.close();
-	return;
-}
-
-*/
 double conductance( double radius, double vis, double len) 
 {
 	//double effrad = sqrt(4.0/PI)*radius;  //effective radius 
-	double effrad = radius; //sqrt(4.0/PI)*radius;  //effective radius 
+	double effrad = radius; //sqrt(4.0/PI)*radius;  
 	return (PI*pow(effrad,4)/(8.0*vis*len)); 
 }
 
@@ -204,7 +169,7 @@ int main(int argc, char *argv[])
       int nx, ny, nz;  
 
       fstream infile;
-      infile.open("input.txt",ios::in); //open a file to perform read operation using file object
+      infile.open("input.txt",ios::in); 
       infile >> pinlet ;   // in MPa 
       infile >> poutlet ;  // in MPa 
       infile >> mu ;       // viscosity (Pa. s)
@@ -220,26 +185,20 @@ int main(int argc, char *argv[])
 
       infile >> zleft; 
       infile >> zright; 
-      infile.close();      //close the file object.
+      infile.close();      
       double pmin = poutlet, pmax = pinlet;  //MPa 
       ifstream rnode("node.dat");
       rnode >> nodes; 
       
-      //double* xc    = (double*)malloc(nodes * sizeof(double*));
-      //double* yc    = (double*)malloc(nodes * sizeof(double*));
-      //double* zc    = (double*)malloc(nodes * sizeof(double*));
-      //double* nd    = (double*)malloc(nodes * sizeof(double*));
       double* nreff = (double*)malloc(nodes * sizeof(double*));
       double* nflow = (double*)malloc(nodes * sizeof(double*));
       
       // read node locations and diameters 
-      //readnode(xc, yc, zc, nd); 
       Node Body;  
       Body.readdata();  
       //Body.DisplayVectorContents();  
       
-      //exit(0); 
- 
+
       double maxd = 10.0;  // maximum diameter   
       for(int i=0; i<nodes ; i++) {
 	      // radius of pore bodies 
@@ -254,10 +213,7 @@ int main(int argc, char *argv[])
      
       Link Throat;  
       Throat.readdata(); 
-      //int* l1    = (int*)malloc(links * sizeof(int*));       // node at one end of link 
-      //int* l2    = (int*)malloc(links * sizeof(int*));       // node at the other end of the link 
-      //double* ld = (double*)malloc(links * sizeof(double*)); // link diameter 
-
+     
       int* wet     = (int*)malloc(nodes * sizeof(int*));     // hydrocarbon-wet 
       double linkl;  
 
@@ -360,7 +316,6 @@ int main(int argc, char *argv[])
       }
       cout << " % of organic pores " << float(count)/nodes  << endl;  
 
-      //exit(0);  
       // constant in adsorption term  
       cnstc = 1.0/(pmax-pmin)*(0.1*pmax/(1.0+0.1*pmax) - 0.1*pmin/(1.0+0.1*pmin));
 
@@ -410,9 +365,9 @@ int main(int argc, char *argv[])
       // calculate porosity
       double porosity = 0.0;
       for(int i=0; i<nodes; i++)
-              porosity = porosity + (4.0/3.0)*PI*pow(Body.rad[i],3); // nd[i],3); // add nodes volume 
+              porosity = porosity + (4.0/3.0)*PI*pow(Body.rad[i],3); ; // add nodes volume 
       for(int i=0; i<links; i++)
-              porosity = porosity + PI*pow(Throat.rad[i],2)*100.0; //ld[i],2)*100.0;     // add links volume 
+              porosity = porosity + PI*pow(Throat.rad[i],2)*100.0;     // add links volume 
 
       porosity =  porosity/(1000*1000*1000);
       cout << "porosity" << porosity << endl;
@@ -440,7 +395,7 @@ int main(int argc, char *argv[])
 		     sumcond  = 0;
                      rhs[i]   = 0;
 	             nflow[i] = 0;
-      	             voli     = calvol(Body.rad[i]); //calvol(Body.rad[i]); // nd[i]); 
+      	             voli     = calvol(Body.rad[i]); 
                      // loop through the links
                      if(ni[i] ==0) {  //shape factor = 0  
 	   		     val.push_back(1.0);
@@ -462,20 +417,17 @@ int main(int argc, char *argv[])
 		     }
 		     else { 
 	   		     tmps = 0.0; 
-		      	     //den[i]    = calrho(pressures[i],pnond); 
-			     //if(wet[i] == 1) tmps = dv_sorption(nreff[i], cnstc, den[i])/(m2nm);
+
 			     for(int j=0; j<ni[i]; j++) {
 				     id  = conn[i][j]; // link id 
 				     k1  = Throat.ends.at(id).first;   //l1[id];     // node at one end of the link 
 				     k2  = Throat.ends.at(id).second;  //l2[id];     // node on the other end of the link 
 				     {
 					     linkl = ll- nreff[k1] - nreff[k2]; // link length 	
-					     //effr  = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 					     //only pore throats offer resistence to flow but they do not have volume 
 					     //pore bodies possess volumes but they do not provide resistance to flow   
 					     effr  = 0.0; //  0.4*0.1*pavg/(1.0+0.1*pavg);                 // link effective radius 
 					     tmpl  = conductance(Throat.rad[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible 
-					     //tmpl  = conductance(ld[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible 
 					     tmp   = tmpl*dt; //1.0/(1.0/tmpi + 1.0/tmpl + 1.0/tmpj);
 					     //klef = (1.0+2.0*(ckkb/pnond)/(pressures[k1]+pressures[k2])); 
 
@@ -507,9 +459,9 @@ int main(int argc, char *argv[])
                            
 					     }
 		      
-				     } // if condition 
+				     } 
                   
-			     }  // connection loop
+			     } 
 
 			     vcomp  = voli/pnond; // compressibility term  
 			     if(sumcond < 1.e-200  && sumcond > -1.e-200) sumcond = 1.0;
@@ -519,8 +471,8 @@ int main(int argc, char *argv[])
 			     row.push_back(i);
 			     col.push_back(i);
 
-			     }  // if condition loop end 
-       	     }   //for node loop 
+			     }  
+       	     }   
       
 	     pold = pressures; 
 	     linear_solver_petsc(val,
@@ -536,13 +488,13 @@ int main(int argc, char *argv[])
         
 	     //density calculations
 	     for(int i=0; i<nodes; i++) {
-		     voli    = calvol(Body.rad[i]);  //nd[i]); // (4.0/3.0)*PI*pow(nd[i],3);
+		     voli    = calvol(Body.rad[i]);  
 		     tmp     = den[i]; //kg/m^3  // density
 		     tmps    = 0.0;
 		     if(wet[i] == 1) tmps = 0.0; // dv_sorption(nreff[i], cnstc, den[i])/(m2nm);
 		     // saturation = 1.0 
 		     den[i]  = (tmp*(nflow[i] + tmps*(pold[i]-pressures[i]))*pnond + tmp*voli*1.0)/ (1.0*voli) ;
-     	     }   //for node loop
+     	     } 
 
 
         
@@ -555,11 +507,9 @@ int main(int argc, char *argv[])
 			     k2     = Throat.ends.at(id).second ;; //l2[id];
 			     linkl  = ll - nreff[k1] - nreff[k2]; 
 			     pavg   = (pressures[k1] + pressures[k2])/2.0;  
-			     //effr = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 			     effr   = 0.0; //0.4*0.1*pavg/(1.0+0.1*pavg); // pressure in MPa
 			     tmpl   = conductance(Throat.rad[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
-			     //tmpl   = conductance(ld[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
-			     tmp    =  tmpl*dt; //1.0/(1.0/tmpi + 1.0/tmpl + 1.0/tmpj);
+			     tmp    =  tmpl*dt; 
 			     if(i==k1) massin = massin + tmp * den[i]*(pressures[k1] - pressures[k2]);
                              if(i==k1) flowr  = flowr  + tmpl *(pressures[k1] - pressures[k2]);
 			     if(i==k2) massin = massin + tmp * den[i]*(pressures[k2] - pressures[k1]);
@@ -577,10 +527,8 @@ int main(int argc, char *argv[])
 				     k2    = Throat.ends.at(id).second;  //l2[id];
 				     linkl = ll- nreff[k1] - nreff[k2]; 
 				     pavg  = (pressures[k1] + pressures[k2])/2.0;  
-				     //effr  = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 				     effr  = 0.0; //0.4*0.1*pavg/(1.0+0.1*pavg); // pressure in MPa
 				     tmpl  = conductance(Throat.rad[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
-				     //tmpl  = conductance(ld[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
 				     tmp   = dt*tmpl; //1.0/(1.0/tmpi + 1.0/tmpl + 1.0/tmpj);
 				     if(i==k1) massout = massout + tmp * den[i]*(pressures[k1] - pressures[k2]); 
 				     if(i==k2) massout = massout + tmp * den[i]*(pressures[k2] - pressures[k1]); 
@@ -588,11 +536,9 @@ int main(int argc, char *argv[])
 		     }
 	     }
 	     cout << "time step "<< k <<" "<<k*dt<<" "<< massin << " "<<massout << endl; 
-	     //cout << "avg flow rate  "<< flow <<" "<< flow*mu*length/area/(pinlet-poutlet) << std::endl;
 	     outmass   << k <<"\t"<< k*dt <<"\t" << massin*1e-21 <<"\t"<< massout*1e-21 <<"\t" << std::endl;
 
              permeability =  flowr*nonle*nonle*mu*length/(area*(pinlet-poutlet)*pnond);
-//             cout << "permeability " <<  flowr*1e-12  <<"\t"<< mu <<"\t"<< area <<"\t"<< length <<"\t"<< (pinlet-poutlet)*pnond <<"\t" << permeability << endl;
              cout << "permeability " <<  permeability << endl;   ///(0.987*1e-18) << endl;
       } // time step loop 
       
@@ -611,17 +557,11 @@ int main(int argc, char *argv[])
 
       system("gnuplot plot_mass.gnu");
       //system("gnuplot -p -e plot_mass.gnu");
-//      free(xc);
-//      free(yc);
-//      free(zc);
-//      free(nd);
+
       free(nreff);
       free(nflow);
       free(wet); 
       
-//      free(l1);
-//      free(l2);
-//      free(ld);
       
       ierr = PetscFinalize();
       if (ierr) {return ierr;}
