@@ -2,6 +2,7 @@
 !Author: V Kotteda 
 !Date :  Oct 22, 2021 
 !**************************************************************
+program main 
 !implicit real(a-h,o-z) 
 implicit none
 integer :: nx, ny, nz 
@@ -15,15 +16,17 @@ double precision, dimension (:), allocatable :: yc
 double precision, dimension (:), allocatable :: zc  
 double precision, dimension (:), allocatable :: radn 
 
-double precision :: calavg=0, calsd=0, radlnk 
+double precision :: calavg=0, calsd=0, radlnk, elmlen 
 double precision :: r1, r2, rmin, rmax, radius
 REAL snorm
+double precision :: dx, dy, dz 
+integer i1, i2 
 
 open(20,file='input.dat', status='unknown') 
 read(20,*) nx, ny, nz 
 write(*,*) "nx ny nz", nx, ny, nz 
-read(20,*) maxdis 
-write(*,*) "max distance", maxdis 
+read(20,*) dx, dy, dz 
+write(*,*) "dx dy dz", dx, dy, dz
 read(20,*) sigma, mu 
 write(*,*) "sigma mu", sigma, mu 
 read(20,*) low, high 
@@ -31,11 +34,14 @@ write(*,*) "cutoff: low high", low, high
 close(20) 
  
 nodes = nx * ny * nz  
-allocate(xc(nx)) 
-allocate(yc(ny)) 
-allocate(zc(nz)) 
+!allocate(xc(nx)) 
+!allocate(yc(ny)) 
+!allocate(zc(nz))
+ 
+allocate(xc(nodes))
+allocate(yc(nodes))
+allocate(zc(nodes))
 allocate(radn(nodes))
-
 
 !call Normal_Distribution(1.0d0,1.0d0, 1000, pdist) 
 !           avg, sd 
@@ -60,17 +66,19 @@ write(10,*) nodes
 
 ic = 0 
 do i=1,nz 
-    zc(i) = (i-1)*100
-   do j=1, ny 
-      yc(j) = (j-1)*100.0 
+   do j=1, ny  
       do k=1, nx
-         xc(k) = (k-1)*100.0
-         ic = ic + 1
+         ic = ic + 1 
+         zc(ic) = float(i-1)*dz*rand_number()
+         yc(ic) = float(j-1)*dy*rand_number() 
+         xc(ic) = float(k-1)*dx*rand_number()
+         write(*,*) i, j, k , dx, dy, dz 
          !write(10,*) ic, xc(i), yc(j),zc(k)
-         write(10,*) xc(k), yc(j),zc(i), radn(ic) 
+         write(10,*) xc(ic), yc(ic),zc(ic), radn(ic) 
       end do 
     end do 
 end do 
+
 
 rmin = 1e6 
 rmax = 1e-6 
@@ -96,24 +104,33 @@ il=0
 do i=1,nodes-1
    il   = il+1
    r1   = radn(i) 
-   r2   = radn(i+1) 
-   call cal_link_rad(r1, r2,maxdis, radlnk) 
-   write(11,*) i-1, i, radlnk 
+   r2   = radn(i+1)
+   i2   = i+1    
+   !elmlen = sqrt( (xc(i)-xc(i2))**2.0 +(yc(i)-yc(i2))**2.0+(zc(i)-zc(i2))**2.0)
+   elmlen = max(abs (xc(i)-xc(i2)), abs(yc(i)-yc(i2)) , abs(zc(i)-zc(i2)))
+   call cal_link_rad(r1, r2, dy, radlnk) 
+   write(11,*) i-1, i, radlnk, elmlen
 end do 
 
 do i=1,nodes-nx-1
   il = il +1 
   r1 = radn(i) 
-  r2 = radn(i+nx) 
-  call cal_link_rad(r1, r2,maxdis, radlnk) 
-  write(11,*)  i-1,i+nx-1, radlnk
+  r2 = radn(i+nx)
+  i2 = i+nx  
+  !elmlen = sqrt( (xc(i)-xc(i2))**2.0 +(yc(i)-yc(i2))**2.0+(zc(i)-zc(i2))**2.0)
+  elmlen = max(abs (xc(i)-xc(i2)), abs(yc(i)-yc(i2)) , abs(zc(i)-zc(i2)))
+  call cal_link_rad(r1, r2,dx, radlnk) 
+  write(11,*)  i-1,i+nx-1, radlnk, elmlen
 end do 
 
 do i=1,nodes-nx*ny-1
   r1 = radn(i) 
   r2 = radn(i+nx*ny) 
-  call cal_link_rad(r1, r2,maxdis, radlnk) 
-  write(11,*)  i-1,i+nx*ny-1, radlnk 
+  i2  = i+nx*ny 
+  call cal_link_rad(r1, r2,dz, radlnk) 
+  !elmlen = sqrt( (xc(i)-xc(i2))**2.0 +(yc(i)-yc(i2))**2.0+(zc(i)-zc(i2))**2.0)
+  elmlen = max(abs (xc(i)-xc(i2)), abs(yc(i)-yc(i2)) , abs(zc(i)-zc(i2)))
+  write(11,*)  i-1,i+nx*ny-1, radlnk, elmlen
   il = il + 1 
 end do 
 
@@ -129,9 +146,8 @@ end do
 !deallocate(zc) 
 !deallocate(radn) 
 
-end
 
-
+contains 
 subroutine cal_link_rad(radi, radj, maxd, radlk)
 
 double precision, intent(in) :: radi, radj, maxd
@@ -216,4 +232,19 @@ subroutine Normal_Distribution(sigma, mu, samples, x)
  
 return 
 end 
- 
+
+
+FUNCTION rand_number()
+
+IMPLICIT NONE
+double precision :: rand_number
+
+  rand_number  =  rand()
+  do while (rand_number.le.0.7)
+    rand_number = rand()
+  end do 
+  write(*,*) rand_number
+  
+end function rand_number
+
+end program main 
