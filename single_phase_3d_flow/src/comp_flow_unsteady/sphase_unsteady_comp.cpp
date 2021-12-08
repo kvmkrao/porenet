@@ -1,4 +1,3 @@
-
 /*
  * Author: V Kotteda
  * Date  : October 28, 2021
@@ -12,8 +11,6 @@
  * Non-equilibrium effects in capillarity and interfacial area in two-phase flow: Dynamic pore-network modelling. Journal of Fluid Mechanics, 655, 38-71.
  * https://doi.org/10.1017/S0022112010000704
  */
-
-
 #include<cmath>
 #include <iostream>
 #include <fstream>
@@ -69,7 +66,6 @@ void readlink(int* l1, int* l2, double* ld) {
 	for(int i=0; i<nl ; i++) {
 	     linknn >> l1[i] >> l2[i]; 
              linkdia >> ld[i];
-	     //ld[i] = 100.0;  //1e-7;  // link diameter 
 	}
 	
 	linknn.close();
@@ -133,7 +129,6 @@ int main(int argc, char *argv[])
       double sigma= 5.0e-2; //kg/s^2
       int n,nodes,links,count, i1, i2,inode,nsteps;
       double xt, yt, zt, dt,zleft, zright;
-
       double pinlet ; // Pressure at the inlet  boundary 
       double poutlet; // Pressure at the outlet boundary 
       double mu     ; // viscosity
@@ -141,7 +136,7 @@ int main(int argc, char *argv[])
       int    uniform; // ==1 true 
       double ll     ; //link length 
       double linkr  ; // link radius
-      int nx, ny, nz;  
+      int nx, ny, nz, flowType;
 
       fstream infile;
       infile.open("input.txt",ios::in); //open a file to perform read operation using file object
@@ -157,9 +152,9 @@ int main(int argc, char *argv[])
       infile >> nx;
       infile >> ny;
       infile >> nz;
-
       infile >> zleft; 
-      infile >> zright; 
+      infile >> zright;
+      infile >> flowType;  
       infile.close();      //close the file object.
       double pmin = poutlet, pmax = pinlet;  //MPa 
       ifstream rnode("node.dat");
@@ -233,7 +228,7 @@ int main(int argc, char *argv[])
       double domainvol = xc[nodes]*yc[nodes]*zc[nodes];  
       double massin=0.0,massout=0.0,tmass; 
       double vcomp,effr, voli;
-      double rid, rjd, qid, qjd;  
+      double rid, rjd, qid, qjd; 
       double porevol = 0, klef, ckkb = 1e7;
       double permeability, flowr, flow;  
 
@@ -290,9 +285,8 @@ int main(int argc, char *argv[])
       for(int i=0; i<nodes; i++) {
 	      if(wet[i]==1) count = count + 1; 
       }
-      cout << " % of organic pores " << float(count)/nodes  << endl;  
+      //cout << " % of organic pores " << float(count)/nodes  << endl;  
 
-      //exit(0);  
       // constant in adsorption term  
       cnstc = 1.0/(pmax-pmin)*(0.1*pmax/(1.0+0.1*pmax) - 0.1*pmin/(1.0+0.1*pmin));
 
@@ -331,7 +325,8 @@ int main(int argc, char *argv[])
       }
       // calculate initial density 
       for(int i=0; i<nodes; i++) {
-	      den[i]    = calrho(pressures[i],pnond, tempe); 
+	      den[i]    = 1; 
+              if(flowType >1) den[i] = calrho(pressures[i],pnond, tempe); 
       }
 
       // calculate porosity
@@ -392,7 +387,7 @@ int main(int argc, char *argv[])
 		      	     //den[i]    = calrho(pressures[i],pnond); 
 			     //if(wet[i] == 1) tmps = dv_sorption(nreff[i], cnstc, den[i])/(m2nm);
 			     for(int j=0; j<ni[i]; j++) {
-				     id  = conn[i][j]; // link id 
+				     id  = conn[i][j];  
 				     k1  = l1[id];     // node at one end of the link 
 				     k2  = l2[id];     // node on the other end of the link 
 				     {
@@ -401,7 +396,8 @@ int main(int argc, char *argv[])
 					     //only pore throats offer resistence to flow but they do not have volume 
 					     //pore bodies possess volumes but they do not provide resistance to flow   
 					     effr  = 0.0; //  0.4*0.1*pavg/(1.0+0.1*pavg);                 // link effective radius 
-					     tmpl  = conductance(ld[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible 
+					     tmpl  = conductance(ld[id]-effr, mu,linkl); 
+                                             if(flowType>1) tmpl *= ((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible 
 					     tmp   = tmpl*dt; //1.0/(1.0/tmpi + 1.0/tmpl + 1.0/tmpj);
 					     //klef = (1.0+2.0*(ckkb/pnond)/(pressures[k1]+pressures[k2])); 
 
@@ -437,11 +433,16 @@ int main(int argc, char *argv[])
                   
 			     }  // connection loop
 
-			     vcomp  = voli/pnond; // compressibility term  
+			     if(flowType>1) vcomp  = voli/pnond; // compressibility term  
 			     if(sumcond < 1.e-200  && sumcond > -1.e-200) sumcond = 1.0;
 			     sumcond = sumcond + tmps;     // add sorption term  		  
-			     val.push_back(-sumcond-vcomp/pressures[i]); // add compressibility term 
-			     rhs[i] = rhs[i]-pressures[i]*tmps- vcomp ; //modify right hand side vector to consider sorption and compressibility 
+			     if(flowType>1) { 
+			         val.push_back(-sumcond-vcomp/pressures[i]); // add compressibility term
+			         rhs[i] = rhs[i]-pressures[i]*tmps- vcomp ; //modify right hand side vector to consider sorption and compressibility 
+                             }
+			     else { 
+				  val.push_back(-sumcond);
+			     }
 			     row.push_back(i);
 			     col.push_back(i);
 
@@ -467,13 +468,14 @@ int main(int argc, char *argv[])
 		     tmps    = 0.0;
 		     if(wet[i] == 1) tmps = 0.0; // dv_sorption(nreff[i], cnstc, den[i])/(m2nm);
 		     // saturation = 1.0 
-		     den[i]  = (tmp*(nflow[i] + tmps*(pold[i]-pressures[i]))*pnond + tmp*voli*1.0)/ (1.0*voli) ;
+                     den[i]  = 1.0; 
+		     if(flowType >1) den[i]  = (tmp*(nflow[i] + tmps*(pold[i]-pressures[i]))*pnond + tmp*voli*1.0)/ (1.0*voli) ;
      	     }   //for node loop
 
 
         
 	     // calculate massflow at the inlet 
-	     // massin = 0.0; 
+	     // massin = 0.0;
 	     for(int i=0; i<nsec; i++) {
 		     for(int j=0; j<ni[i]; j++) {
 			     id     = conn[i][j];
@@ -483,7 +485,8 @@ int main(int argc, char *argv[])
 			     pavg   = (pressures[k1] + pressures[k2])/2.0;  
 			     //effr = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 			     effr   = 0.0; //0.4*0.1*pavg/(1.0+0.1*pavg); // pressure in MPa
-			     tmpl   = conductance(ld[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
+			     tmpl   = conductance(ld[id]-effr, mu,linkl); 
+			     if(flowType >1 ) tmpl   *=  ((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
 			     tmp    =  tmpl*dt; //1.0/(1.0/tmpi + 1.0/tmpl + 1.0/tmpj);
 			     if(i==k1) massin = massin + tmp * den[i]*(pressures[k1] - pressures[k2]);
                              if(i==k1) flowr  = flowr  + tmpl *(pressures[k1] - pressures[k2]);
@@ -500,11 +503,12 @@ int main(int argc, char *argv[])
 				     id    = conn[i][j];
 				     k1    = l1[id];
 				     k2    = l2[id];
-				     linkl = ll- nreff[k1] - nreff[k2]; 
+				     linkl = ll - nreff[k1] - nreff[k2]; 
 				     pavg  = (pressures[k1] + pressures[k2])/2.0;  
 				     //effr  = 0.4*0.1*pressures[i]/(1+0.1*pressures[i]); // pressure in MPa
 				     effr  = 0.0; //0.4*0.1*pavg/(1.0+0.1*pavg); // pressure in MPa
-				     tmpl  = conductance(ld[id]-effr, mu,linkl)*((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
+				     tmpl  = conductance(ld[id]-effr, mu,linkl); 
+				     if(flowType >1 ) tmpl  *= ((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
 				     tmp   = dt*tmpl; //1.0/(1.0/tmpi + 1.0/tmpl + 1.0/tmpj);
 				     if(i==k1) massout = massout + tmp * den[i]*(pressures[k1] - pressures[k2]); 
 				     if(i==k2) massout = massout + tmp * den[i]*(pressures[k2] - pressures[k1]); 
@@ -516,7 +520,6 @@ int main(int argc, char *argv[])
 	     outmass   << k <<"\t"<< k*dt <<"\t" << massin*1e-21 <<"\t"<< massout*1e-21 <<"\t" << std::endl;
 
              permeability =  flowr*nonle*nonle*mu*length/(area*(pinlet-poutlet)*pnond);
-//             cout << "permeability " <<  flowr*1e-12  <<"\t"<< mu <<"\t"<< area <<"\t"<< length <<"\t"<< (pinlet-poutlet)*pnond <<"\t" << permeability << endl;
              cout << "permeability " <<  permeability << endl;   ///(0.987*1e-18) << endl;
       } // time step loop 
       
@@ -534,7 +537,6 @@ int main(int argc, char *argv[])
       outavgpfile.close();
 
       system("gnuplot plot_mass.gnu");
-      //system("gnuplot -p -e plot_mass.gnu");
       free(xc);
       free(yc);
       free(zc);

@@ -12,13 +12,20 @@
 10  
 120.0
 960.0
+2
 
 pinlet ;   // in MPa 
-poutlet ;  // in MPa 
+poutlet ;  // in MPa
 mu ;       // viscosity (Pa. s)
 dt ;       // time step 
 nsteps;    // number of time steps
 tempe;     // temperature in K  
-zleft;
-zright;
-
+uniform or non-uniform 
+link radius 
+link length 
+nx          (no of points in x-direction)
+ny          (no of points in y-direction)
+nz          (no of points in z-direction) 
+zleft;      (left  boundary) 
+zright;     (right boundary) 
+flowType    (compressible or inmcompressible) 
