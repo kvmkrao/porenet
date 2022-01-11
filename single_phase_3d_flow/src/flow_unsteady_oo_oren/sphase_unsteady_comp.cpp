@@ -96,9 +96,14 @@ int main(int argc, char *argv[])
       double* nflow = (double*)malloc(nodes * sizeof(double*));
 
       //Node Body;  
-      OrenNode Body; 
-      Body.readdata(); 
-      Body.DisplayContents();  
+      OrenNode Bodyadd;
+      OrenNode *Body;                // Declare pointer to a class.
+
+     // Save the address of first object
+      Body = &Bodyadd;
+ 
+      Body->readdata(); 
+      Body->DisplayContents();  
  
       double maxd = 10.0;  // maximum diameter 
 
@@ -154,7 +159,7 @@ int main(int argc, char *argv[])
       double porevol = 0, klef, ckkb = 1e7;
       double permeability, flowr, flow;  
       double l2norm; 
-      double domainvol = Body.xc[nodes]*Body.yc[nodes]*Body.zc[nodes];  
+      double domainvol = Body->xc[nodes]*Body->yc[nodes]*Body->zc[nodes];  
 
       ofstream tout ("output.txt");
 
@@ -162,24 +167,24 @@ int main(int argc, char *argv[])
       //find min, max, avg coordination numbers 
       int minBodyRad = 100, maxBodyRad=-100, sumBodyRad=0.0; 
       for (int i=0; i<nodes; ++i) {
-          if(minBodyRad > Body.rad[i]) minBodyRad = Body.rad[i]; 
-          if(maxBodyRad < Body.rad[i]) maxBodyRad = Body.rad[i]; 
-          sumBodyRad = sumBodyRad + Body.rad[i];
+          if(minBodyRad > Body->rad[i]) minBodyRad = Body->rad[i]; 
+          if(maxBodyRad < Body->rad[i]) maxBodyRad = Body->rad[i]; 
+          sumBodyRad = sumBodyRad + Body->rad[i];
       }   
 
 //    Declare memory block of size nodes
       double avgcord = 0; 
       int** conn = new int*[nodes];
       for (int i=0; i<nodes; ++i) { 
-  	      conn[i] = new int[Body.conum[i]];
-              avgcord = avgcord + Body.conum[i]; 
+  	      conn[i] = new int[Body->conum[i]];
+              avgcord = avgcord + Body->conum[i]; 
       } 
 
       //find min, max, avg coordination numbers 
       int minCord = 100, maxCord=-100;
       for (int i=0; i<nodes; ++i) {
-          if(minCord > Body.conum[i]) minCord = Body.conum[i]; 
-          if(maxCord < Body.conum[i]) maxCord = Body.conum[i]; 
+          if(minCord > Body->conum[i]) minCord = Body->conum[i]; 
+          if(maxCord < Body->conum[i]) maxCord = Body->conum[i]; 
       } 
 
 
@@ -238,7 +243,7 @@ int main(int argc, char *argv[])
       // calculate porosity
       double porosity = 0.0;
       for(int i=0; i<nodes; i++)
-    	  porosity = porosity + (4.0/3.0)*PI*pow(Body.rad[i],3);       // add nodes volume
+    	  porosity = porosity + (4.0/3.0)*PI*pow(Body->rad[i],3);       // add nodes volume
       for(int i=0; i<links; i++)
     	  porosity = porosity + PI*pow(Throat.rad[i],2)*Throat.len[i]; // add links volume
 
@@ -260,7 +265,7 @@ int main(int argc, char *argv[])
     		  sumcond  = 0.0;
     		  rhs[i]   = 0.0;
     		  nflow[i] = 0.0;
-    		  voli     = calvol(Body.rad[i]);
+    		  voli     = calvol(Body->rad[i]);
 
     		  if(ni[i] ==0) {  //number of connections  = 0
     			  val.push_back(1.0);
@@ -381,7 +386,7 @@ int main(int argc, char *argv[])
       
      
       for(int i=0; i<nodes; i++) {
-	  myfile << pressures[i] <<" "<<Body.xc[i] <<" "<<Body.yc[i]<<" "<<Body.zc[i]<<" "<<  std::endl;
+	  myfile << pressures[i] <<" "<<Body->xc[i] <<" "<<Body->yc[i]<<" "<<Body->zc[i]<<" "<<  std::endl;
       }
       myfile.close();
      
