@@ -113,9 +113,11 @@ int main(int argc, char *argv[])
       rlink >> links;   // number of links 
      
       //Link Throat;  
-      OrenLink Throat; 
-      Throat.readdata(); 
-      Throat.DisplayContents();  
+      OrenLink Throatadd, *Throat;
+      Throat = &Throatadd; 
+ 
+      Throat->readdata(); 
+      Throat->DisplayContents();  
 
       double linkl, density;
 
@@ -191,13 +193,13 @@ int main(int argc, char *argv[])
       double minThroatLen = 100, maxThroatLen= -100, sumThroatLen=0.0; 
       double minThroatRad = 100, maxThroatRad= -100, sumThroatRad=0.0; 
       for (int i=0; i<links; ++i) {
-          if(minThroatRad > Throat.rad[i]) minThroatRad = Throat.rad[i]; 
-          if(maxThroatRad < Throat.rad[i]) maxThroatRad = Throat.rad[i];
-          sumThroatRad= sumThroatRad + Throat.rad[i]; 
+          if(minThroatRad > Throat->rad[i]) minThroatRad = Throat->rad[i]; 
+          if(maxThroatRad < Throat->rad[i]) maxThroatRad = Throat->rad[i];
+          sumThroatRad= sumThroatRad + Throat->rad[i]; 
 
-          if(minThroatLen > Throat.len[i]) minThroatLen = Throat.len[i]; 
-          if(maxThroatLen < Throat.len[i]) maxThroatLen = Throat.len[i];
-          sumThroatLen= sumThroatLen + Throat.len[i]; 
+          if(minThroatLen > Throat->len[i]) minThroatLen = Throat->len[i]; 
+          if(maxThroatLen < Throat->len[i]) maxThroatLen = Throat->len[i];
+          sumThroatLen= sumThroatLen + Throat->len[i]; 
       } 
 
       // initialize rhs, pressure and density 
@@ -220,8 +222,8 @@ int main(int argc, char *argv[])
 
 
       for(int j=0; j<links; j++) {
-    	  k1 = Throat.ends.at(j).first;
-    	  k2 = Throat.ends.at(j).second;
+    	  k1 = Throat->ends.at(j).first;
+    	  k2 = Throat->ends.at(j).second;
 
     	  if(k1 > 0) { //node1 ==0 : inlet or outlet
     		  i1 = ni[k1-1];
@@ -245,7 +247,7 @@ int main(int argc, char *argv[])
       for(int i=0; i<nodes; i++)
     	  porosity = porosity + (4.0/3.0)*PI*pow(Body->rad[i],3);       // add nodes volume
       for(int i=0; i<links; i++)
-    	  porosity = porosity + PI*pow(Throat.rad[i],2)*Throat.len[i]; // add links volume
+    	  porosity = porosity + PI*pow(Throat->rad[i],2)*Throat->len[i]; // add links volume
 
       porosity =  porosity/(xt*yt*zt);
 
@@ -277,10 +279,10 @@ int main(int argc, char *argv[])
 	   		     tmps = 0.0; 
 	   		     for(int j=0; j<ni[i]; j++) {
 			    	     Id  = conn[i][j];
-				     k1  = Throat.ends.at(Id).first  -1;    // node at one end of the link
-				     k2  = Throat.ends.at(Id).second -1;     // node on the other end of the link
-				     linkl = Throat.len[Id];  // link length
-				     if(Throat.id[Id] == 1) { // connected to inlet
+				     k1  = Throat->ends.at(Id).first  -1;    // node at one end of the link
+				     k2  = Throat->ends.at(Id).second -1;     // node on the other end of the link
+				     linkl = Throat->len[Id];  // link length
+				     if(Throat->id[Id] == 1) { // connected to inlet
 				    	 /*
 				    	 //if((k1+1) > 0) tmpl  = conductance(Throat.rad[Id], mu,linkl)*((pinlet+pressures[k1])/(2.0*pressures[k1])) ; // compressible
 				    	 //if((k2+1) > 0)  tmpl  = conductance(Throat.rad[Id], mu,linkl)*((pinlet+pressures[k2])/(2.0*pressures[k2])) ; // compressible\
@@ -295,7 +297,7 @@ int main(int argc, char *argv[])
 		    			  col.push_back(i);
 		    			  rhs[i] = pinlet;
 				     }
-				     else if (Throat.id[Id] == 2) {
+				     else if (Throat->id[Id] == 2) {
 				    	 /*
 				    	 //if((k1+1) >0 ) tmpl  = conductance(Throat.rad[Id], mu,linkl)*((poutlet+pressures[k1])/(2.0*pressures[k1])) ;
 				    	 //if((k2+1) >0 ) tmpl  = conductance(Throat.rad[Id], mu,linkl)*((poutlet+pressures[k2])/(2.0*pressures[k2])) ;
@@ -315,7 +317,7 @@ int main(int argc, char *argv[])
 				    	 //only pore throats offer resistence to flow but they do not have volume
 				    	 //pore bodies possess volumes but they do not provide resistance to flow
 
-				    	  tmpl  = conductance(Throat.rad[Id], mu,linkl);  
+				    	  tmpl  = conductance(Throat->rad[Id], mu,linkl);  
                                           if(flowType >1) tmpl *= ((pressures[k1]+pressures[k2])/(2.0*pressures[i])) ; // compressible
 					  tmp   = tmpl*dt;
 					  sumcond = sumcond + tmp; //*klef;
@@ -364,13 +366,13 @@ int main(int argc, char *argv[])
 	  // massin = 0.0; 
     	  flowr = 0.0;
     	  for(int i=0; i<links; i++) {
-    		  k1  = Throat.ends.at(i).first  ;
-    		  k2  = Throat.ends.at(i).second ;
-    		  if(Throat.id[i] == 1) {
+    		  k1  = Throat->ends.at(i).first  ;
+    		  k2  = Throat->ends.at(i).second ;
+    		  if(Throat->id[i] == 1) {
     			  if(k1 < 0) i1 = k2-1;
     			  if(k2 < 0) i1 = k1-1;
-    			  linkl  = Throat.len[i];
-    			  tmpl   = conductance(Throat.rad[i], mu,linkl); 
+    			  linkl  = Throat->len[i];
+    			  tmpl   = conductance(Throat->rad[i], mu,linkl); 
                           if(flowType>1) tmpl *= ((pinlet+pressures[i1])/(2.0*pressures[i1])) ;
     			  tmp    = tmpl*dt;
     			  density = calrho(pinlet,pnond,tempe);
