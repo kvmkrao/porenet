@@ -3,8 +3,6 @@ Author : V Kotteda
 Date   : Dec  8, 2021  
 *
 */
-
-
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -96,7 +94,6 @@ int linear_solver_petsc(const std::vector<double> &val,
 
    ierr = MatSetOption(A, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE); CHKERRQ(ierr);
    ierr = MatGetOwnershipRange(A,&Istart,&Iend); CHKERRQ(ierr);
-// std::cout<<"\t\t\t Istart: " << Istart << "\t Iend: "<<Iend<<std::endl;
    if ( (Iend-Istart) != num_row)
         std::cerr<<"Iend-Istart: " << (Iend-Istart) << " is not the same as num_row: " << num_row <<std::endl;
 
@@ -104,22 +101,11 @@ int linear_solver_petsc(const std::vector<double> &val,
         ROW_NDX = row[i];
         COL_NDX = col[i];
         VAL = val[i];
-	//if(COL_NDX <1331) 
 	ierr = MatSetValues(A,1,&ROW_NDX,1,&COL_NDX,&VAL,INSERT_VALUES); CHKERRQ(ierr);
-	//cout << ROW_NDX <<"\t"<< COL_NDX <<"\t"<<endl;  
     }
-
-//   exit(0);
-//    return 0;
 
     ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
     ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-
-    //printf("assembled matrix \n");
-//    ierr = MatSetOption(A, MAT_SYMMETRIC, PETSC_TRUE); CHKERRQ(ierr);
-
-
-    //        assemble the RHS - msedghi
 
 //    ierr = VecCreateMPI(PETSC_COMM_WORLD,num_row,elementCount,&rhs_pet); CHKERRQ(ierr);
     ierr = VecCreate(MPI_COMM_WORLD,&rhs_pet); CHKERRQ(ierr);

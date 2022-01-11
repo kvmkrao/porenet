@@ -1,5 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-
 
 #include "linear_solver_petsc.h"
 #include <petscksp.h>
@@ -43,30 +41,10 @@ int linear_solver_petsc(const std::vector<double> &val,
    PetscInt num_col = num_row;
 
    printf("num row col %d %d %d\n", num_row, num_col, row.size());
-   //exit(0); 
-   //return 0;  
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //     Compute the matrix and right-hand-side vector that define
-    //     the linear system, Ax = b.
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // Create parallel matrix, specifying only its global dimensions.
-    // When using MatCreate(), the matrix format can be specified at
-    // runtime. Also, the parallel partitioning of the matrix is
-    // determined by PETSc at runtime.
-
-    // Performance tuning note:  For problems of substantial size,
-    // preallocation of matrix memory is crucial for attaining good
-    // performance. See the matrix chapter of the users manual for details.
-
-//    PetscInt dia_nnz_pet[dia_nnz.size()];
-//    PetscInt off_nnz_pet[off_nnz.size()];
 
    ierr = MatCreate(MPI_COMM_WORLD,&A); CHKERRQ(ierr);
    ierr = MatSetType(A,MATMPIAIJ); CHKERRQ(ierr);
    ierr = MatSetSizes(A,num_row,num_col,elementCount,elementCount); CHKERRQ(ierr);
-//    ierr = MatSetSizes(A,PETSC_DECIDE,PETSC_DECIDE,elementCount,elementCount); CHKERRQ(ierr);
    ierr = MatSetFromOptions(A);
    ierr = MatMPIAIJSetPreallocation(A,6,NULL,6,NULL); CHKERRQ(ierr);
 
@@ -85,17 +63,11 @@ int linear_solver_petsc(const std::vector<double> &val,
 	//cout << ROW_NDX <<"\t"<< COL_NDX <<"\t"<<endl;  
     }
 
-//   exit(0); 
-//    return 0;
-
     ierr = MatAssemblyBegin(A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
     ierr = MatAssemblyEnd(A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
 
     printf("assembled matrix \n");
 //    ierr = MatSetOption(A, MAT_SYMMETRIC, PETSC_TRUE); CHKERRQ(ierr);
-
-
-    //        assemble the RHS - msedghi
 
 //    ierr = VecCreateMPI(PETSC_COMM_WORLD,num_row,elementCount,&rhs_pet); CHKERRQ(ierr);
     ierr = VecCreate(MPI_COMM_WORLD,&rhs_pet); CHKERRQ(ierr);

@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-/// Author:      Mohammad Sedghi <mhdsedghi@gmail.com>
-/// Created:     2018
-/// Copyright:   (c) 2018 Mohammad Sedghi
-/// Licence:     Commercial-sedghi
-/////////////////////////////////////////////////////////////////////////////
-
-
 #include "linear_solver_petsc.h"
 #include <petscksp.h>
 #include <iostream>
@@ -93,8 +85,6 @@ int linear_solver_petsc(const std::vector<double> &val,
     printf("assembled matrix \n");
 //    ierr = MatSetOption(A, MAT_SYMMETRIC, PETSC_TRUE); CHKERRQ(ierr);
 
-
-    //        assemble the RHS - msedghi
 
 //    ierr = VecCreateMPI(PETSC_COMM_WORLD,num_row,elementCount,&rhs_pet); CHKERRQ(ierr);
     ierr = VecCreate(MPI_COMM_WORLD,&rhs_pet); CHKERRQ(ierr);
@@ -186,7 +176,6 @@ int linear_solver_petsc(const std::vector<double> &val,
 
 //    ierr = PetscPrintf(PETSC_COMM_WORLD,"Residual Norm %g iterations %D\n",(real_tp)norm,its);
 
-    //msedghi - for debugging
 //    bool debug = false;
 //    if (debug){
 //        PetscViewer viewer;

@@ -1,0 +1,3 @@
+/home1/vkotteda/porenet/single_phase_3d_flow/src/flow_unsteady_oo_oren/CMakeFiles/rebuild_cache.dir
+/home1/vkotteda/porenet/single_phase_3d_flow/src/flow_unsteady_oo_oren/CMakeFiles/edit_cache.dir
+/home1/vkotteda/porenet/single_phase_3d_flow/src/flow_unsteady_oo_oren/CMakeFiles/sinphase.dir

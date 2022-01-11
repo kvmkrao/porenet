@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////
-/// Author:      Mohammad Sedghi <mhdsedghi@gmail.com>
-/// Created:     2018
-/// Copyright:   (c) 2018 Mohammad Sedghi
-/// Licence:     Commercial-sedghi
-/////////////////////////////////////////////////////////////////////////////
-
-
 
 #ifndef LINEAR_SOLVER_PETSC_H
 #define LINEAR_SOLVER_PETSC_H

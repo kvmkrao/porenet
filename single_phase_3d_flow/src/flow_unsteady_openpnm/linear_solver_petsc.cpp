@@ -98,8 +98,6 @@ int linear_solver_petsc(const std::vector<double> &val,
 //    ierr = MatSetOption(A, MAT_SYMMETRIC, PETSC_TRUE); CHKERRQ(ierr);
 
 
-    //        assemble the RHS - msedghi
-
 //    ierr = VecCreateMPI(PETSC_COMM_WORLD,num_row,elementCount,&rhs_pet); CHKERRQ(ierr);
     ierr = VecCreate(MPI_COMM_WORLD,&rhs_pet); CHKERRQ(ierr);
     ierr = VecSetSizes(rhs_pet,num_row,elementCount);CHKERRQ(ierr);
