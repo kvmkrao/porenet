@@ -8,15 +8,15 @@
 cmake_minimum_required(VERSION 3.0) 
 
 # set paths
-SET(PETSC_DIR /home/vkotteda/Software/libraries/petsc-gcc7)
-SET(PETSC_ARCH linux-gnu-release-cuda)
-SET(BOOST_DIR /home/vkotteda/Software/libraries/boost/gcc7/install/)
-SET(METIS_DIR /home/vkotteda/Software/libraries/parmetis/install/) 
-SET(MPI_DIR /home/vkotteda/Software/libraries/mpi/gcc7/aware-c/) 
+#PETSC_DIR=/home/vkotteda/Software/petsc/petsc_src_git PETSC_ARCH=arch-linux-c-opt
+
+SET(PETSC_DIR /home/vkotteda/Software/petsc/petsc_src_git)
+SET(PETSC_ARCH arch-linux-c-opt)
+SET(MPI_DIR /home/vkotteda/Software/petsc/install/) 
 
 
 # set default c++ compilers
-SET(CMAKE_CXX_COMPILER ${MPI_DIR}/bin/mpicxx "-Wall -fno-omit-frame-pointer -std=c++17")
+SET(CMAKE_CXX_COMPILER ${MPI_DIR}/bin/mpicxx "-Wall -fno-omit-frame-pointer -std=c++17 -fopenmp")
 SET(CMAKE_C_COMPILER ${MPI_DIR}/bin/mpicc)
 
 # set default flags for release and debug mode
@@ -53,24 +53,16 @@ set(SOURCE_EXE
         link.cpp 
         write_data.cpp	
 	linear_solver_petsc.cpp)
+        #sphase_unsteady_comp.cpp
 
+	#linear_solver_petsc_omp.cpp)
+        #sphase_unsteady_comp.cpp
 #include header files 
 include_directories(".")
 include_directories(${PETSC_DIR}/include
 	${PETSC_DIR}/${PETSC_ARCH}/include
-	${BOOST_DIR}/include
         /usr/local/include
         )
-
-#For the static library:
-set(PROJECT_LINK_LIBS libmetis.a)
-link_directories(${METIS_DIR}/lib/)
-
-set(PROJECT_LINK_LIBS libboost_system.a  libboost_filesystem.a)
-link_directories(${BOOST_DIR}/lib/)
-
-set(PROJECT_LINK_LIBS libpetsc.so) 
-LINK_DIRECTORIES(${PETSC_DIR}/${PETSC_ARCH}/lib/)
 
 set(PROJECT_LINK_LIBS libmpi.so)
 LINK_DIRECTORIES(${MPI_DIR}/lib/) 
@@ -79,9 +71,7 @@ ADD_EXECUTABLE(sinphase ${SOURCE_EXE})
 
 TARGET_LINK_LIBRARIES(sinphase
 	-lpetsc 
-	-lmetis 
-	-lmpi
-	-lboost_filesystem -lboost_system)
+	-lmpi)
 
 # =====================================================================
 # Print information
