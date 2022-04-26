@@ -1,6 +1,6 @@
 # porenet
 
-single_phase_3d_flow - a single compressible/incompressible flow through a 3D porous media.
+A single compressible/incompressible flow through a 3D porous media. (single_phase_3d_flow )
 
 gen_network  directory includes the programs/codes to generate a 3D pore network. 
 
